@@ -11,10 +11,7 @@ class AbonmuApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Abonmu',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
       home: const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
@@ -31,10 +28,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const ReportScreen(),
-  ];
+  final List<Widget> _screens = [const DashboardScreen(), const ReportScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -82,14 +76,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   };
 
   List<Map<String, dynamic>> _latestProductions = [
-    {'product_name': 'Abon ayam 15gram MBG', 'date': '2026-02-12', 'quantity': 1500, 'type': 'pesanan'},
-    {'product_name': 'Abon ayam 15gram', 'date': '2026-02-10', 'quantity': 2400, 'type': 'pesanan'},
+    {
+      'product_name': 'Abon ayam 15gram MBG',
+      'date': '2026-02-12',
+      'quantity': 1500,
+      'type': 'pesanan',
+    },
+    {
+      'product_name': 'Abon ayam 15gram',
+      'date': '2026-02-10',
+      'quantity': 2400,
+      'type': 'pesanan',
+    },
   ];
 
   List<Map<String, dynamic>> _latestSales = [
-    {'invoice_number': 'INV-20260212-0001', 'customer_name': 'Umum', 'total_amount': 30000, 'date': '2026-02-12'},
-    {'invoice_number': 'INV-20260211-0001', 'customer_name': 'Umum', 'total_amount': 7200000, 'date': '2026-02-11'},
-    {'invoice_number': 'INV-20260210-0001', 'customer_name': 'Umum', 'total_amount': 7200000, 'date': '2026-02-10'},
+    {
+      'invoice_number': 'INV-20260212-0001',
+      'customer_name': 'Umum',
+      'total_amount': 30000,
+      'date': '2026-02-12',
+    },
+    {
+      'invoice_number': 'INV-20260211-0001',
+      'customer_name': 'Umum',
+      'total_amount': 7200000,
+      'date': '2026-02-11',
+    },
+    {
+      'invoice_number': 'INV-20260210-0001',
+      'customer_name': 'Umum',
+      'total_amount': 7200000,
+      'date': '2026-02-10',
+    },
   ];
 
   List<Map<String, dynamic>> _bestSelling = [
@@ -212,9 +231,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Total Transaksi', style: TextStyle(color: Colors.grey)),
+                                      const Text(
+                                        'Total Transaksi',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
                                       const SizedBox(height: 4),
                                       Text(
                                         '${_summary['total_transactions']}',
@@ -228,12 +251,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Rata-rata/Transaksi', style: TextStyle(color: Colors.grey)),
+                                      const Text(
+                                        'Rata-rata/Transaksi',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        formatRupiah(_summary['avg_per_transaction']),
+                                        formatRupiah(
+                                          _summary['avg_per_transaction'],
+                                        ),
                                         style: const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -252,9 +281,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Total Pendapatan', style: TextStyle(color: Colors.grey)),
+                                      const Text(
+                                        'Total Pendapatan',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
                                       const SizedBox(height: 4),
                                       Text(
                                         formatRupiah(_summary['total_sales']),
@@ -295,9 +328,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               final index = entry.key;
                               final product = entry.value;
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('${index + 1}. ${product['name']}'),
                                     Text(
@@ -333,62 +369,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            ..._latestProductions.map((item) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                            ..._latestProductions.map(
+                              (item) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['product_name'],
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            _formatDate(item['date']),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Text(
-                                          item['product_name'],
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
+                                          '${item['quantity']} bungkus',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange,
+                                          ),
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(
-                                          _formatDate(item['date']),
-                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: item['type'] == 'pesanan'
+                                                ? Colors.orange
+                                                : Colors.green,
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item['type'] == 'pesanan'
+                                                ? 'Pesanan'
+                                                : 'Rutin',
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        '${item['quantity']} bungkus',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.orange,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: item['type'] == 'pesanan'
-                                              ? Colors.orange
-                                              : Colors.green,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          item['type'] == 'pesanan' ? 'Pesanan' : 'Rutin',
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            )),
+                            ),
                           ],
                         ),
                       ),
@@ -411,47 +463,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            ..._latestSales.map((item) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                            ..._latestSales.map(
+                              (item) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['invoice_number'],
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            item['customer_name'],
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Text(
-                                          item['invoice_number'],
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
+                                          formatRupiah(item['total_amount']),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          item['customer_name'],
-                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                          _formatDate(item['date']),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        formatRupiah(item['total_amount']),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        _formatDate(item['date']),
-                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            )),
+                            ),
                           ],
                         ),
                       ),
@@ -483,22 +550,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              ..._lowStock.map((item) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(item['name']),
-                                    Text(
-                                      '${item['stock']} ${item['unit']}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red,
+                              ..._lowStock.map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(item['name']),
+                                      Text(
+                                        '${item['stock']} ${item['unit']}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              )),
+                              ),
                             ],
                           ),
                         ),
@@ -513,7 +585,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, String unit, IconData icon, Color color) {
+  Widget _buildSummaryCard(
+    String title,
+    String value,
+    String unit,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -566,7 +644,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// ============= REPORT SCREEN =============
+// ============= REPORT SCREEN (DIPERBAIKI) =============
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
@@ -574,8 +652,10 @@ class ReportScreen extends StatefulWidget {
   State<ReportScreen> createState() => _ReportScreenState();
 }
 
-class _ReportScreenState extends State<ReportScreen> {
-  int _tabIndex = 0;
+class _ReportScreenState extends State<ReportScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   DateTime _startDate = DateTime(2026, 2, 1);
   DateTime _endDate = DateTime(2026, 2, 28);
 
@@ -588,8 +668,18 @@ class _ReportScreenState extends State<ReportScreen> {
       'total_transactions': 2,
     },
     'production_by_product': [
-      {'product_name': 'Abon ayam 15gram', 'total_production': 2400, 'routine_production': 0, 'order_production': 2400},
-      {'product_name': 'Abon ayam 15gram MBG', 'total_production': 1500, 'routine_production': 0, 'order_production': 1500},
+      {
+        'product_name': 'Abon ayam 15gram',
+        'total_production': 2400,
+        'routine_production': 0,
+        'order_production': 2400,
+      },
+      {
+        'product_name': 'Abon ayam 15gram MBG',
+        'total_production': 1500,
+        'routine_production': 0,
+        'order_production': 1500,
+      },
     ],
   };
 
@@ -599,14 +689,42 @@ class _ReportScreenState extends State<ReportScreen> {
     'total_expenses': 200000,
     'net_profit': 14230000,
     'sales_by_product': [
-      {'product_name': 'Abon ayam 15gram', 'total_sold': 2400, 'total_revenue': 7200000},
-      {'product_name': 'Abon ayam 15gram MBG', 'total_sold': 10, 'total_revenue': 30000},
+      {
+        'product_name': 'Abon ayam 15gram',
+        'total_sold': 2400,
+        'total_revenue': 7200000,
+      },
+      {
+        'product_name': 'Abon ayam 15gram MBG',
+        'total_sold': 10,
+        'total_revenue': 30000,
+      },
     ],
     'expenses_by_category': [
-      {'category': 'gaji karyawan', 'transaction_count': 1, 'total_amount': 100000},
-      {'category': 'transportasi', 'transaction_count': 2, 'total_amount': 100000},
+      {
+        'category': 'gaji karyawan',
+        'transaction_count': 1,
+        'total_amount': 100000,
+      },
+      {
+        'category': 'transportasi',
+        'transaction_count': 2,
+        'total_amount': 100000,
+      },
     ],
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   String formatRupiah(dynamic amount) {
     if (amount == null) return 'Rp 0';
@@ -624,11 +742,11 @@ class _ReportScreenState extends State<ReportScreen> {
       appBar: AppBar(
         title: const Text('Laporan'),
         bottom: TabBar(
+          controller: _tabController,
           tabs: const [
             Tab(text: '📊 Produksi'),
             Tab(text: '💰 Keuangan'),
           ],
-          onTap: (index) => setState(() => _tabIndex = index),
         ),
       ),
       body: Column(
@@ -642,7 +760,11 @@ class _ReportScreenState extends State<ReportScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildDateButton('Tanggal Mulai', _startDate, true),
+                      child: _buildDateButton(
+                        'Tanggal Mulai',
+                        _startDate,
+                        true,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -670,12 +792,13 @@ class _ReportScreenState extends State<ReportScreen> {
               ],
             ),
           ),
-          
+
           // Result
           Expanded(
-            child: _tabIndex == 0
-                ? _buildProductionReport()
-                : _buildFinancialReport(),
+            child: TabBarView(
+              controller: _tabController,
+              children: [_buildProductionReport(), _buildFinancialReport()],
+            ),
           ),
         ],
       ),
@@ -715,7 +838,10 @@ class _ReportScreenState extends State<ReportScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
                   Text(formatDate(date), style: const TextStyle(fontSize: 12)),
                 ],
               ),
@@ -729,7 +855,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _buildProductionReport() {
     final summary = _productionReport['summary'];
     final products = _productionReport['production_by_product'] as List;
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -754,7 +880,7 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Summary Stats
           Card(
             elevation: 2,
@@ -772,7 +898,10 @@ class _ReportScreenState extends State<ReportScreen> {
                       Expanded(
                         child: Column(
                           children: [
-                            const Text('Total Produksi', style: TextStyle(color: Colors.grey)),
+                            const Text(
+                              'Total Produksi',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               '${summary['total_production']}',
@@ -782,14 +911,28 @@ class _ReportScreenState extends State<ReportScreen> {
                                 color: Colors.orange,
                               ),
                             ),
-                            const Text('bungkus', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                            const Text(
+                              'bungkus',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
                       Expanded(
                         child: Column(
                           children: [
-                            const Text('Produksi Rutin', style: TextStyle(color: Colors.grey)),
+                            const Text(
+                              'Produksi Rutin',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               '${summary['routine_production']}',
@@ -799,13 +942,23 @@ class _ReportScreenState extends State<ReportScreen> {
                                 color: Colors.green,
                               ),
                             ),
+                            const Text(
+                              'bungkus',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       Expanded(
                         child: Column(
                           children: [
-                            const Text('Produksi Pesanan', style: TextStyle(color: Colors.grey)),
+                            const Text(
+                              'Produksi Pesanan',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               '${summary['order_production']}',
@@ -813,6 +966,13 @@ class _ReportScreenState extends State<ReportScreen> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.orange,
+                              ),
+                            ),
+                            const Text(
+                              'bungkus',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
                               ),
                             ),
                           ],
@@ -830,7 +990,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Total Transaksi: ', style: TextStyle(color: Colors.grey)),
+                        const Text(
+                          'Total Transaksi: ',
+                          style: TextStyle(color: Colors.grey),
+                        ),
                         Text(
                           '${summary['total_transactions']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -843,7 +1006,7 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Production by Product
           Card(
             elevation: 2,
@@ -857,58 +1020,80 @@ class _ReportScreenState extends State<ReportScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  ...products.map((item) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['product_name'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                  ...products.map(
+                    (item) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['product_name'],
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Total', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text('${item['total_production']} bungkus'),
-                                ],
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Total',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text('${item['total_production']} bungkus'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Rutin', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text('${item['routine_production']} bungkus'),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Rutin',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${item['routine_production']} bungkus',
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Pesanan', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text('${item['order_production']} bungkus'),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Pesanan',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text('${item['order_production']} bungkus'),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -943,7 +1128,7 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Financial Summary
           Card(
             elevation: 2,
@@ -965,7 +1150,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Total Penjualan', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Total Penjualan',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text(
                           formatRupiah(_financialReport['total_sales']),
                           style: const TextStyle(
@@ -987,7 +1175,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Total Pengeluaran', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Total Pengeluaran',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text(
                           formatRupiah(_financialReport['total_expenses']),
                           style: const TextStyle(
@@ -1009,7 +1200,13 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Laba Bersih', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Text(
+                          'Laba Bersih',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         Text(
                           formatRupiah(_financialReport['net_profit']),
                           style: const TextStyle(
@@ -1026,7 +1223,7 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Sales by Product
           Card(
             elevation: 2,
@@ -1040,58 +1237,74 @@ class _ReportScreenState extends State<ReportScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  ...(_financialReport['sales_by_product'] as List).map((item) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['product_name'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                  ...(_financialReport['sales_by_product'] as List).map(
+                    (item) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['product_name'],
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Terjual', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text('${item['total_sold']} bungkus'),
-                                ],
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Terjual',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text('${item['total_sold']} bungkus'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Pendapatan', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text(
-                                    formatRupiah(item['total_revenue']),
-                                    style: const TextStyle(color: Colors.green),
-                                  ),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Pendapatan',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    Text(
+                                      formatRupiah(item['total_revenue']),
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Expenses by Category
           Card(
             elevation: 2,
@@ -1105,41 +1318,48 @@ class _ReportScreenState extends State<ReportScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  ...(_financialReport['expenses_by_category'] as List).map((item) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item['category'],
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '${item['transaction_count']} transaksi',
-                                style: const TextStyle(fontSize: 12, color: Colors.grey),
-                              ),
-                            ],
+                  ...(_financialReport['expenses_by_category'] as List).map(
+                    (item) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['category'],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '${item['transaction_count']} transaksi',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Text(
-                          formatRupiah(item['total_amount']),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
+                          Text(
+                            formatRupiah(item['total_amount']),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),
