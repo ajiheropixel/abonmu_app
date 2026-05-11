@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:abonmu_app/services/api_service.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -126,7 +127,28 @@ class _ReportScreenState extends State<ReportScreen>
 
   String formatRupiah(dynamic amount) {
     if (amount == null) return 'Rp 0';
-    return 'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+
+    try {
+      double value = 0;
+      if (amount is String) {
+        value = double.tryParse(amount) ?? 0;
+      } else if (amount is int) {
+        value = amount.toDouble();
+      } else if (amount is double) {
+        value = amount;
+      } else {
+        return 'Rp 0';
+      }
+
+      final formatter = NumberFormat.currency(
+        locale: 'id_ID',
+        symbol: 'Rp ',
+        decimalDigits: 0,
+      );
+      return formatter.format(value);
+    } catch (e) {
+      return 'Rp 0';
+    }
   }
 
   String formatDate(DateTime date) {

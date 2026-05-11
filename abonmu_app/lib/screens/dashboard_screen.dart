@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:abonmu_app/services/api_service.dart';
 
@@ -12,7 +13,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final ApiService _api = ApiService();
   bool _loading = true;
   String? _errorMessage;
-
+  
   Map<String, dynamic> _summary = {};
   List<dynamic> _latestProductions = [];
   List<dynamic> _latestSales = [];
@@ -30,14 +31,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _loading = true;
       _errorMessage = null;
     });
-
+    
     try {
       final summary = await _api.get('/api/dashboard/summary');
       final productions = await _api.get('/api/dashboard/latest-productions');
       final sales = await _api.get('/api/dashboard/latest-sales');
       final stock = await _api.get('/api/dashboard/low-stock');
       final best = await _api.get('/api/dashboard/best-selling');
-
+      
       setState(() {
         _summary = summary['data'] ?? {};
         _latestProductions = productions['data'] ?? [];
@@ -54,9 +55,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // ============ FUNGSI FORMAT ANGKA YANG AMAN ============
+  
+  String formatNumber(dynamic value) {
+    if (value == null) return '0';
+    
+    try {
+      double numValue = 0;
+      if (value is String) {
+        numValue = double.tryParse(value) ?? 0;
+      } else if (value is int) {
+        numValue = value.toDouble();
+      } else if (value is double) {
+        numValue = value;
+      } else {
+        numValue = 0;
+      }
+      
+      return numValue.toStringAsFixed(0);
+    } catch (e) {
+      return '0';
+    }
+  }
+  
   String formatRupiah(dynamic amount) {
     if (amount == null) return 'Rp 0';
-    return 'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    
+    try {
+      double value = 0;
+      if (amount is String) {
+        value = double.tryParse(amount) ?? 0;
+      } else if (amount is int) {
+        value = amount.toDouble();
+      } else if (amount is double) {
+        value = amount;
+      } else {
+        return 'Rp 0';
+      }
+      
+      // Format dengan titik sebagai pemisah ribuan
+      final formatter = NumberFormat.currency(
+        locale: 'id_ID',
+        symbol: 'Rp ',
+        decimalDigits: 0,
+      );
+      return formatter.format(value);
+    } catch (e) {
+      return 'Rp 0';
+    }
   }
 
   @override
@@ -128,8 +174,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Expanded(
                               child: _buildSummaryCard(
-                                'Produksi Bulan Ini',
-                                '${_summary['total_production'] ?? 0}',
+                                'Produksi',
+                                formatNumber(_summary['total_production']),
                                 'bungkus',
                                 Icons.factory,
                                 Colors.blue,
@@ -138,9 +184,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildSummaryCard(
-                                'Penjualan Bulan Ini',
+                                'Penjualan',
                                 formatRupiah(_summary['total_sales']),
-                                '${_summary['total_transactions'] ?? 0} transaksi',
+                                '${formatNumber(_summary['total_transactions'])} transaksi',
                                 Icons.attach_money,
                                 Colors.green,
                               ),
@@ -169,15 +215,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Total Transaksi',
-                                              style: TextStyle(
-                                                  color: Colors.grey)),
+                                          const Text('Total Transaksi', style: TextStyle(color: Colors.grey)),
                                           const SizedBox(height: 4),
                                           Text(
-                                            '${_summary['total_transactions'] ?? 0}',
+                                            formatNumber(_summary['total_transactions']),
                                             style: const TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -188,16 +231,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Rata-rata/Transaksi',
-                                              style: TextStyle(
-                                                  color: Colors.grey)),
+                                          const Text('Rata-rata/Transaksi', style: TextStyle(color: Colors.grey)),
                                           const SizedBox(height: 4),
                                           Text(
-                                            formatRupiah(_summary[
-                                                'avg_per_transaction']),
+                                            formatRupiah(_summary['avg_per_transaction']),
                                             style: const TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -216,16 +255,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Total Pendapatan',
-                                              style: TextStyle(
-                                                  color: Colors.grey)),
+                                          const Text('Total Pendapatan', style: TextStyle(color: Colors.grey)),
                                           const SizedBox(height: 4),
                                           Text(
-                                            formatRupiah(
-                                                _summary['total_sales']),
+                                            formatRupiah(_summary['total_sales']),
                                             style: const TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -262,27 +297,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 if (_bestSelling.isEmpty)
                                   const Padding(
                                     padding: EdgeInsets.all(20),
-                                    child:
-                                        Center(child: Text('Belum ada data')),
+                                    child: Center(child: Text('Belum ada data')),
                                   )
                                 else
-                                  ...(_bestSelling as List)
-                                      .asMap()
-                                      .entries
-                                      .map((entry) {
+                                  ..._bestSelling.asMap().entries.map((entry) {
                                     final index = entry.key;
                                     final product = entry.value;
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8),
+                                      padding: const EdgeInsets.symmetric(vertical: 8),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
+                                          Text('${index + 1}. ${product['name'] ?? ''}'),
                                           Text(
-                                              '${index + 1}. ${product['name']}'),
-                                          Text(
-                                            '${product['total_quantity']} bungkus',
+                                            '${formatNumber(product['total_quantity'])} bungkus',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.orange,
@@ -317,81 +345,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 if (_latestProductions.isEmpty)
                                   const Padding(
                                     padding: EdgeInsets.all(20),
-                                    child:
-                                        Center(child: Text('Belum ada data')),
+                                    child: Center(child: Text('Belum ada data')),
                                   )
                                 else
-                                  ...(_latestProductions as List).map((item) =>
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                  ..._latestProductions.map((item) => Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item['product_name'] ?? '',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                item['date'] ?? '',
+                                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    item['product_name'] ?? '',
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  const SizedBox(height: 2),
-                                                  Text(
-                                                    item['date'] ?? '',
-                                                    style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey),
-                                                  ),
-                                                ],
+                                            Text(
+                                              '${formatNumber(item['quantity'])} bungkus',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.orange,
                                               ),
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  '${item['quantity']} bungkus',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.orange,
-                                                  ),
+                                            const SizedBox(height: 2),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: (item['type'] ?? 'rutin') == 'pesanan'
+                                                    ? Colors.orange
+                                                    : Colors.green,
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                (item['type'] ?? 'rutin') == 'pesanan' ? 'Pesanan' : 'Rutin',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white,
                                                 ),
-                                                const SizedBox(height: 2),
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: item['type'] ==
-                                                            'pesanan'
-                                                        ? Colors.orange
-                                                        : Colors.green,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                  ),
-                                                  child: Text(
-                                                    item['type'] == 'pesanan'
-                                                        ? 'Pesanan'
-                                                        : 'Rutin',
-                                                    style: const TextStyle(
-                                                      fontSize: 10,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                              ),
                                             ),
                                           ],
                                         ),
-                                      )),
+                                      ],
+                                    ),
+                                  )),
                               ],
                             ),
                           ),
@@ -417,65 +429,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 if (_latestSales.isEmpty)
                                   const Padding(
                                     padding: EdgeInsets.all(20),
-                                    child:
-                                        Center(child: Text('Belum ada data')),
+                                    child: Center(child: Text('Belum ada data')),
                                   )
                                 else
-                                  ...(_latestSales as List).map((item) =>
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                  ..._latestSales.map((item) => Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item['invoice_number'] ?? '',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                item['customer_name'] ?? 'Umum',
+                                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    item['invoice_number'] ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  const SizedBox(height: 2),
-                                                  Text(
-                                                    item['customer_name'] ??
-                                                        'Umum',
-                                                    style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey),
-                                                  ),
-                                                ],
+                                            Text(
+                                              formatRupiah(item['total_amount']),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.green,
                                               ),
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  formatRupiah(
-                                                      item['total_amount']),
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.green,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  item['date'] ?? '',
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey),
-                                                ),
-                                              ],
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              item['date'] ?? '',
+                                              style: const TextStyle(fontSize: 12, color: Colors.grey),
                                             ),
                                           ],
                                         ),
-                                      )),
+                                      ],
+                                    ),
+                                  )),
                               ],
                             ),
                           ),
@@ -507,24 +504,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  ...(_lowStock as List).map((item) => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 4),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(item['name'] ?? ''),
-                                            Text(
-                                              '${item['stock'] ?? 0} ${item['unit'] ?? 'bungkus'}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
+                                  ..._lowStock.map((item) => Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(item['name'] ?? ''),
+                                        Text(
+                                          '${formatNumber(item['stock'])} ${item['unit'] ?? 'bungkus'}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red,
+                                          ),
                                         ),
-                                      )),
+                                      ],
+                                    ),
+                                  )),
                                 ],
                               ),
                             ),
@@ -539,8 +534,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCard(
-      String title, String value, String unit, IconData icon, Color color) {
+  Widget _buildSummaryCard(String title, String value, String unit, IconData icon, Color color) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -583,3 +577,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
+
+// ============ TAMBAHKAN NumberFormat di awal file ============
