@@ -15,8 +15,8 @@ class _ReportScreenState extends State<ReportScreen>
   final ApiService _api = ApiService();
 
   // Filter values
-  DateTime _startDate = DateTime(2026, 2, 1);
-  DateTime _endDate = DateTime(2026, 2, 28);
+  DateTime _startDate = DateTime(2026, 1, 1);
+  DateTime _endDate = DateTime.now();
   String _selectedCategory = 'Semua Kategori';
   String _selectedType = 'Semua Jenis';
   String _selectedProduct = 'Semua Produk';
@@ -85,14 +85,11 @@ class _ReportScreenState extends State<ReportScreen>
       _errorMessage = null;
     });
 
-    final startDateStr =
-        '${_startDate.year}-${_startDate.month.toString().padLeft(2, '0')}-${_startDate.day.toString().padLeft(2, '0')}';
-    final endDateStr =
-        '${_endDate.year}-${_endDate.month.toString().padLeft(2, '0')}-${_endDate.day.toString().padLeft(2, '0')}';
+    final startDateStr = DateFormat('yyyy-MM-dd').format(_startDate);
+    final endDateStr = DateFormat('yyyy-MM-dd').format(_endDate);
 
     try {
       if (_tabController.index == 0) {
-        // Production Report
         final response = await _api.post('/api/reports/production', {
           'start_date': startDateStr,
           'end_date': endDateStr,
@@ -107,7 +104,6 @@ class _ReportScreenState extends State<ReportScreen>
           _loading = false;
         });
       } else {
-        // Financial Report
         final response = await _api.post('/api/reports/financial', {
           'start_date': startDateStr,
           'end_date': endDateStr,
@@ -126,20 +122,15 @@ class _ReportScreenState extends State<ReportScreen>
   }
 
   String formatRupiah(dynamic amount) {
-    if (amount == null) return 'Rp 0';
-
     try {
       double value = 0;
-      if (amount is String) {
-        value = double.tryParse(amount) ?? 0;
-      } else if (amount is int) {
-        value = amount.toDouble();
-      } else if (amount is double) {
-        value = amount;
-      } else {
-        return 'Rp 0';
+      if (amount != null) {
+        if (amount is String) {
+          value = double.tryParse(amount) ?? 0;
+        } else if (amount is num) {
+          value = amount.toDouble();
+        }
       }
-
       final formatter = NumberFormat.currency(
         locale: 'id_ID',
         symbol: 'Rp ',
@@ -151,8 +142,9 @@ class _ReportScreenState extends State<ReportScreen>
     }
   }
 
-  String formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  String formatNumber(dynamic value) {
+    if (value == null) return '0';
+    return NumberFormat.decimalPattern('id_ID').format(value);
   }
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
@@ -161,6 +153,17 @@ class _ReportScreenState extends State<ReportScreen>
       initialDate: isStart ? _startDate : _endDate,
       firstDate: DateTime(2024),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: const Color(0xFFFF6B35),
+            colorScheme: const ColorScheme.light(primary: Color(0xFFFF6B35)),
+            buttonTheme:
+                const ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
@@ -173,23 +176,27 @@ class _ReportScreenState extends State<ReportScreen>
     }
   }
 
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Laporan'),
+        title: const Text(
+          'Laporan',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFFFF6B35),
+        elevation: 0,
+        centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: Colors.white,
+          indicatorWeight: 3,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
           tabs: const [
-            Tab(text: '📊 Produksi'),
-            Tab(text: '💰 Keuangan'),
+            Tab(text: '📊 PRODUKSI'),
+            Tab(text: '💰 KEUANGAN'),
           ],
         ),
       ),
@@ -201,6 +208,7 @@ class _ReportScreenState extends State<ReportScreen>
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                // Date Range
                 Row(
                   children: [
                     Expanded(
@@ -215,7 +223,7 @@ class _ReportScreenState extends State<ReportScreen>
                 ),
                 const SizedBox(height: 12),
 
-                // Category Filter (only for production tab)
+                // Additional Filters (only for production)
                 if (_tabController.index == 0) ...[
                   _buildDropdown('Kategori', _selectedCategory, _categories,
                       (value) {
@@ -231,17 +239,40 @@ class _ReportScreenState extends State<ReportScreen>
                 ],
 
                 const SizedBox(height: 16),
-                SizedBox(
+
+                // Generate Button
+                Container(
                   width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF6B35), Color(0xFFFF8C5A)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF6B35).withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: ElevatedButton(
                     onPressed: _generateReport,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     child: const Text(
-                      'Tampilkan Laporan',
-                      style: TextStyle(fontSize: 16),
+                      'GENERATE LAPORAN',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
                     ),
                   ),
                 ),
@@ -266,20 +297,28 @@ class _ReportScreenState extends State<ReportScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.grey[50],
+          border: Border.all(color: Colors.grey[200]!),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, size: 18, color: Colors.grey),
+            Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                  Text(formatDate(date), style: const TextStyle(fontSize: 12)),
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(date),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w500),
+                  ),
                 ],
               ),
             ),
@@ -294,14 +333,15 @@ class _ReportScreenState extends State<ReportScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.grey[50],
+        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          hint: Text(label),
+          hint: Text(label, style: TextStyle(color: Colors.grey[600])),
           items: items.map((item) {
             return DropdownMenuItem(value: item, child: Text(item));
           }).toList(),
@@ -315,14 +355,15 @@ class _ReportScreenState extends State<ReportScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.grey[50],
+        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedProduct,
           isExpanded: true,
-          hint: const Text('Produk'),
+          hint: Text('Pilih Produk', style: TextStyle(color: Colors.grey[600])),
           items: _products.map((product) {
             return DropdownMenuItem(
               value: product['id'].toString(),
@@ -337,7 +378,18 @@ class _ReportScreenState extends State<ReportScreen>
 
   Widget _buildResult() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6B35)),
+            ),
+            SizedBox(height: 16),
+            Text('Memuat laporan...', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
     }
 
     if (_errorMessage != null) {
@@ -345,14 +397,17 @@ class _ReportScreenState extends State<ReportScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text(_errorMessage!),
+            Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _generateReport,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: const Color(0xFFFF6B35),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text('Coba Lagi'),
             ),
@@ -367,8 +422,18 @@ class _ReportScreenState extends State<ReportScreen>
       return _buildFinancialReport();
     }
 
-    return const Center(
-      child: Text('Pilih filter dan tekan Tampilkan Laporan'),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.filter_alt, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'Pilih filter dan tekan Generate',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ],
+      ),
     );
   }
 
@@ -380,20 +445,25 @@ class _ReportScreenState extends State<ReportScreen>
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Periode
+          // Period Card
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.orange[50],
-              borderRadius: BorderRadius.circular(8),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFFFFF3E0), Color(0xFFFFE0B2)],
+              ),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.date_range, size: 20, color: Colors.orange),
+                const Icon(Icons.date_range,
+                    color: Color(0xFFFF6B35), size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  'Periode: ${formatDate(_startDate)} - ${formatDate(_endDate)}',
+                  'Periode: ${DateFormat('dd/MM/yyyy').format(_startDate)} - ${DateFormat('dd/MM/yyyy').format(_endDate)}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
@@ -402,37 +472,59 @@ class _ReportScreenState extends State<ReportScreen>
           const SizedBox(height: 16),
 
           // Summary Stats
-          Card(
-            elevation: 2,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   const Text(
                     'Ringkasan Produksi',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
-                        child: Column(
-                          children: [
-                            const Text('Total Produksi',
-                                style: TextStyle(color: Colors.grey)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${summary['total_production']}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B35).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              const Text('Total Produksi',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 11)),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatNumber(summary['total_production']),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFF6B35),
+                                ),
                               ),
-                            ),
-                            const Text('bungkus',
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.grey)),
-                          ],
+                              const Text('bungkus',
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.grey)),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -441,43 +533,60 @@ class _ReportScreenState extends State<ReportScreen>
                   Row(
                     children: [
                       Expanded(
-                        child: Column(
-                          children: [
-                            const Text('Produksi Rutin',
-                                style: TextStyle(color: Colors.grey)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${summary['routine_production']}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              const Text('Produksi Rutin',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 11)),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatNumber(summary['routine_production']),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
                               ),
-                            ),
-                            const Text('bungkus',
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.grey)),
-                          ],
+                              const Text('bungkus',
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.grey)),
+                            ],
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Column(
-                          children: [
-                            const Text('Produksi Pesanan',
-                                style: TextStyle(color: Colors.grey)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${summary['order_production']}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF9800).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              const Text('Produksi Pesanan',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 11)),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatNumber(summary['order_production']),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFF9800),
+                                ),
                               ),
-                            ),
-                            const Text('bungkus',
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.grey)),
-                          ],
+                              const Text('bungkus',
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.grey)),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -487,7 +596,7 @@ class _ReportScreenState extends State<ReportScreen>
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -495,7 +604,7 @@ class _ReportScreenState extends State<ReportScreen>
                         const Text('Total Transaksi: ',
                             style: TextStyle(color: Colors.grey)),
                         Text(
-                          '${summary['total_transactions']}',
+                          formatNumber(summary['total_transactions']),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -508,22 +617,39 @@ class _ReportScreenState extends State<ReportScreen>
           const SizedBox(height: 16),
 
           // Production by Product
-          Card(
-            elevation: 2,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '📋 Ringkasan per Produk',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    '📋 Detail per Produk',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   if (products.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(child: Text('Tidak ada data produksi')),
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text('Tidak ada data produksi',
+                            style: TextStyle(color: Colors.grey)),
+                      ),
                     )
                   else
                     ...products.map((item) => Container(
@@ -531,7 +657,7 @@ class _ReportScreenState extends State<ReportScreen>
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,7 +669,7 @@ class _ReportScreenState extends State<ReportScreen>
                                   fontSize: 14,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
                               Row(
                                 children: [
                                   Expanded(
@@ -553,10 +679,14 @@ class _ReportScreenState extends State<ReportScreen>
                                       children: [
                                         const Text('Total',
                                             style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 11,
                                                 color: Colors.grey)),
+                                        const SizedBox(height: 2),
                                         Text(
-                                            '${item['total_production']} bungkus'),
+                                          '${formatNumber(item['total_production'])} bungkus',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -567,10 +697,15 @@ class _ReportScreenState extends State<ReportScreen>
                                       children: [
                                         const Text('Rutin',
                                             style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 11,
                                                 color: Colors.grey)),
+                                        const SizedBox(height: 2),
                                         Text(
-                                            '${item['routine_production']} bungkus'),
+                                          '${formatNumber(item['routine_production'])} bungkus',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.green),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -581,10 +716,15 @@ class _ReportScreenState extends State<ReportScreen>
                                       children: [
                                         const Text('Pesanan',
                                             style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 11,
                                                 color: Colors.grey)),
+                                        const SizedBox(height: 2),
                                         Text(
-                                            '${item['order_production']} bungkus'),
+                                          '${formatNumber(item['order_production'])} bungkus',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFFFF9800)),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -597,6 +737,7 @@ class _ReportScreenState extends State<ReportScreen>
               ),
             ),
           ),
+          const SizedBox(height: 80),
         ],
       ),
     );
@@ -607,20 +748,24 @@ class _ReportScreenState extends State<ReportScreen>
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Periode
+          // Period Card
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.orange[50],
-              borderRadius: BorderRadius.circular(8),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
+              ),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.date_range, size: 20, color: Colors.orange),
+                const Icon(Icons.date_range, color: Colors.green, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  'Periode: ${formatDate(_startDate)} - ${formatDate(_endDate)}',
+                  'Periode: ${DateFormat('dd/MM/yyyy').format(_startDate)} - ${DateFormat('dd/MM/yyyy').format(_endDate)}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
@@ -629,28 +774,42 @@ class _ReportScreenState extends State<ReportScreen>
           const SizedBox(height: 16),
 
           // Financial Summary
-          Card(
-            elevation: 2,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   const Text(
                     'Ringkasan Keuangan',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Total Penjualan',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: TextStyle(fontWeight: FontWeight.w500)),
                         Text(
                           formatRupiah(_financialReport!['total_sales']),
                           style: const TextStyle(
@@ -664,16 +823,16 @@ class _ReportScreenState extends State<ReportScreen>
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Total Pengeluaran',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: TextStyle(fontWeight: FontWeight.w500)),
                         Text(
                           formatRupiah(_financialReport!['total_expenses']),
                           style: const TextStyle(
@@ -687,22 +846,22 @@ class _ReportScreenState extends State<ReportScreen>
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.orange[50],
-                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFFF6B35).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Laba Bersih',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
+                                fontWeight: FontWeight.bold, fontSize: 14)),
                         Text(
                           formatRupiah(_financialReport!['net_profit']),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                            color: Color(0xFFFF6B35),
                             fontSize: 18,
                           ),
                         ),
@@ -716,22 +875,39 @@ class _ReportScreenState extends State<ReportScreen>
           const SizedBox(height: 16),
 
           // Sales by Product
-          Card(
-            elevation: 2,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     '🛒 Penjualan per Produk',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   if ((_financialReport!['sales_by_product'] as List).isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(child: Text('Tidak ada data penjualan')),
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text('Tidak ada data penjualan',
+                            style: TextStyle(color: Colors.grey)),
+                      ),
                     )
                   else
                     ...(_financialReport!['sales_by_product'] as List)
@@ -740,7 +916,7 @@ class _ReportScreenState extends State<ReportScreen>
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,27 +938,34 @@ class _ReportScreenState extends State<ReportScreen>
                                           children: [
                                             const Text('Terjual',
                                                 style: TextStyle(
-                                                    fontSize: 12,
+                                                    fontSize: 11,
                                                     color: Colors.grey)),
+                                            const SizedBox(height: 2),
                                             Text(
-                                                '${item['total_sold']} bungkus'),
+                                              '${formatNumber(item['total_sold'])} bungkus',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w500),
+                                            ),
                                           ],
                                         ),
                                       ),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.end,
                                           children: [
                                             const Text('Pendapatan',
                                                 style: TextStyle(
-                                                    fontSize: 12,
+                                                    fontSize: 11,
                                                     color: Colors.grey)),
+                                            const SizedBox(height: 2),
                                             Text(
                                               formatRupiah(
                                                   item['total_revenue']),
                                               style: const TextStyle(
-                                                  color: Colors.green),
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.green,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -799,23 +982,40 @@ class _ReportScreenState extends State<ReportScreen>
           const SizedBox(height: 16),
 
           // Expenses by Category
-          Card(
-            elevation: 2,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     '📝 Pengeluaran per Kategori',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   if ((_financialReport!['expenses_by_category'] as List)
                       .isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(child: Text('Tidak ada data pengeluaran')),
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text('Tidak ada data pengeluaran',
+                            style: TextStyle(color: Colors.grey)),
+                      ),
                     )
                   else
                     ...(_financialReport!['expenses_by_category'] as List)
@@ -824,7 +1024,7 @@ class _ReportScreenState extends State<ReportScreen>
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -841,9 +1041,9 @@ class _ReportScreenState extends State<ReportScreen>
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          '${item['transaction_count']} transaksi',
+                                          '${formatNumber(item['transaction_count'])} transaksi',
                                           style: const TextStyle(
-                                              fontSize: 12, color: Colors.grey),
+                                              fontSize: 11, color: Colors.grey),
                                         ),
                                       ],
                                     ),
@@ -862,6 +1062,7 @@ class _ReportScreenState extends State<ReportScreen>
               ),
             ),
           ),
+          const SizedBox(height: 80),
         ],
       ),
     );
